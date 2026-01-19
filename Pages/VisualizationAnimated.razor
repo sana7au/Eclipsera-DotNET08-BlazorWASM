@@ -1,0 +1,103 @@
+﻿@page "/visualization-animated"
+@inject AppState State
+@inject NavigationManager Nav
+
+<h3 class="text-center text-light mt-3">
+    Animated Planet Visualization
+</h3>
+
+@if (State.PlanetResults == null || State.PlanetResults.Count == 0)
+{
+    <div class="alert alert-danger text-center">
+        Please calculate planet distances first.
+    </div>
+
+    <div class="text-center">
+        <button class="btn btn-secondary" @onclick="GoBack">
+            Back to User Panel
+        </button>
+    </div>
+}
+else
+{
+    <div class="space-container">
+
+        <!-- ☀️ SUN -->
+        <div class="sun"></div>
+
+        @foreach (var planet in AllPlanets)
+        {
+            var distance = GetDistance(planet);
+
+            <div class="orbit"
+                 style="
+                             width:@GetOrbitSize(distance)px;
+                             height:@GetOrbitSize(distance)px;
+                             animation-duration:@GetSpeed(distance)s;
+                         ">
+
+                <div class="planet @planet.ToLower()"
+                     title="@planet">
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="text-center mt-4">
+        <button class="btn btn-primary" @onclick="GoBack">
+            Back to User Panel
+        </button>
+    </div>
+}
+
+@code {
+
+    // ✅ Always show all planets
+    string[] AllPlanets =
+    {
+        "Mercury", "Venus", "Earth", "Mars",
+        "Jupiter", "Saturn", "Uranus", "Neptune"
+    };
+
+    void GoBack()
+    {
+        // Keeps AppState (buttons stay enabled)
+        Nav.NavigateTo("/user", false);
+    }
+
+    double GetDistance(string planet)
+    {
+        // Try user-calculated distance
+        var found = State.PlanetResults
+            .FirstOrDefault(p => p.Planet == planet);
+
+        if (!string.IsNullOrEmpty(found.Planet))
+            return found.Distance;
+
+        // 🔁 Fallback default AU distances
+        return planet switch
+        {
+            "Mercury" => 0.39,
+            "Venus" => 0.72,
+            "Earth" => 1.00,
+            "Mars" => 1.52,
+            "Jupiter" => 5.20,
+            "Saturn" => 9.58,
+            "Uranus" => 19.2,
+            "Neptune" => 30.1,
+            _ => 1.0
+        };
+    }
+
+    int GetOrbitSize(double distance)
+    {
+        // Fits all 8 planets inside container
+        return 120 + (int)(distance * 14);
+    }
+
+    int GetSpeed(double distance)
+    {
+        // Inner planets faster
+        return Math.Max(10, 50 - (int)(distance * 1.2));
+    }
+}

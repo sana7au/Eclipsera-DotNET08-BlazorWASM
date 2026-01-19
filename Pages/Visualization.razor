@@ -1,0 +1,68 @@
+﻿@page "/visualization"
+@inject AppState State
+@inject NavigationManager Nav
+
+<div class="page-overlay">
+    <div class="user-page">
+
+        <h3>Planet Visualization</h3>
+
+        @if (State.PlanetResults == null || State.PlanetResults.Count == 0)
+        {
+            <div class="alert alert-danger">
+                Please calculate planet distances first.
+            </div>
+
+            <button class="btn btn-secondary mt-3" @onclick="GoBack">
+                Back to User Panel
+            </button>
+        }
+        else
+        {
+            <div class="table-wrapper">
+                <table class="planet-table">
+                    <thead>
+                        <tr>
+                            <th>Planet</th>
+                            <th>Distance (AU)</th>
+                            <th>Visualization</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var p in State.PlanetResults)
+                        {
+                            <tr>
+                                <td>@p.Item1</td>
+                                <td>@p.Item2</td>
+                                <td>
+                                    <pre style="margin:0; color:white;">
+        @GenerateBar(p.Item2)
+                                            </pre>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <button class="btn btn-primary mt-4" @onclick="GoBack">
+                Back to User Panel
+            </button>
+        }
+
+    </div>
+</div>
+
+@code {
+    void GoBack()
+    {
+        Nav.NavigateTo("/user");
+    }
+
+    string GenerateBar(double distance)
+    {
+        int bars = (int)Math.Round(distance * 2);
+        bars = Math.Min(bars, 60);
+        return new string('●', bars);
+    }
+}

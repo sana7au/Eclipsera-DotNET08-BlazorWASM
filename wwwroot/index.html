@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Eclipsera</title>
+
+    <base href="/" />
+
+    <!-- CSS -->
+    <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet" />
+    <link href="css/app.css" rel="stylesheet" />
+    <link href="PlanetDistanceBlazor.styles.css" rel="stylesheet" />
+
+    <link rel="icon" type="image/png" href="favicon.png" />
+</head>
+
+<body>
+
+    <!-- 🌌 FULLSCREEN LOADER -->
+    <div id="app-loader">
+        <div class="loader-text">
+            Launching Planet Distance Calculator...
+        </div>
+    </div>
+
+    <!-- 🔵 BLAZOR ROOT -->
+    <div id="app"></div>
+
+    <!-- ❌ ERROR UI -->
+    <div id="blazor-error-ui">
+        <!--An unhandled error has occurred.
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>-->
+    </div>
+
+    <!-- Blazor -->
+    <script src="_framework/blazor.webassembly.js"></script>
+
+    <!-- ✅ REMOVE LOADER AFTER BLAZOR LOADS -->
+    <script>
+        window.addEventListener('load', () => {
+            const loader = document.getElementById('app-loader');
+            if (!loader) return;
+
+            loader.style.transition = 'opacity 7s ease';
+            loader.style.opacity = '0';
+
+            setTimeout(() => {
+                loader.remove();
+            }, 7000);
+        });
+    </script>
+
+    <!-- 🌌 Loader Styling -->
+    <style>
+        /* Fullscreen background */
+        #app-loader {
+            position: fixed;
+            inset: 0;
+            background: url('/images/background.jpg') center center / cover no-repeat;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            overflow: hidden;
+        }
+
+            /* ✨ Blended GIF layer */
+            #app-loader::before {
+                content: "";
+                position: absolute;
+                inset: 0;
+                background: url('/images/loader.gif') center center / contain no-repeat;
+                /* ✨ Smooth blending */
+                mix-blend-mode: screen;
+                opacity: 0.85;
+                /* ✨ Soft radial fade */
+                mask-image: radial-gradient( circle, rgba(0,0,0,1) 55%, rgba(0,0,0,0.6) 72%, rgba(0,0,0,0) 100% );
+                -webkit-mask-image: radial-gradient( circle, rgba(0,0,0,1) 55%, rgba(0,0,0,0.6) 72%, rgba(0,0,0,0) 100% );
+            }
+
+        /* Loading text */
+        .loader-text {
+            position: absolute;
+            bottom: 10%;
+            color: white;
+            font-size: 23px;
+            letter-spacing: 1px;
+            text-shadow: 0 0 12px rgba(0,0,0,0.9);
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            z-index: 2;
+        }
+    </style>
+
+</body>
+</html>

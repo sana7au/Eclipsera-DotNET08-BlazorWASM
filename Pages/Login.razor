@@ -1,0 +1,86 @@
+﻿@page "/"
+@inject NavigationManager Nav
+@inject AppState State
+
+<div class="home-container">
+    <div class="home-card">
+
+        <h2 class="mb-4 text-center">Eclipsera</h2>
+
+        <div class="form-group mb-3">
+            <label>Username</label>
+            <input class="form-control" @bind="username" />
+        </div>
+
+        <div class="form-group mb-3">
+            <label>Role</label>
+            <select class="form-control" @bind="role">
+                <option>User</option>
+                <option>Admin</option>
+            </select>
+        </div>
+
+        @if (role == "Admin")
+        {
+            <div class="form-group mb-3">
+                <label>Admin Password</label>
+                <input type="password"
+                       class="form-control"
+                       @bind="adminPassword" />
+            </div>
+        }
+
+        <button class="btn btn-primary w-100 mt-2"
+                @onclick="LoginUser">
+            Login
+        </button>
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <p class="text-danger mt-3 text-center">
+                @errorMessage
+            </p>
+        }
+
+    </div>
+</div>
+
+@code {
+    string username = "";
+    string role = "User";
+    string adminPassword = "";
+    string errorMessage = "";
+
+    const string STATIC_ADMIN_PASSWORD = "admin123";
+
+    void LoginUser()
+    {
+        errorMessage = "";
+
+        if (string.IsNullOrWhiteSpace(username))
+        {
+            errorMessage = "Username is required.";
+            return;
+        }
+
+        State.Username = username;
+        State.Role = role;
+
+        if (role == "Admin")
+        {
+            if (adminPassword == STATIC_ADMIN_PASSWORD)
+            {
+                State.IsAdminAuthenticated = true;
+                Nav.NavigateTo("/admin", false);
+            }
+            else
+            {
+                errorMessage = "Incorrect admin password.";
+            }
+        }
+        else
+        {
+            Nav.NavigateTo("/user", false);
+        }
+    }
+}

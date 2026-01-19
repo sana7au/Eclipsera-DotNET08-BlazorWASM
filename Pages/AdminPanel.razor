@@ -1,0 +1,88 @@
+﻿@page "/admin"
+@inject AppState State
+@inject NavigationManager Nav
+
+<div class="page-overlay">
+    <div class="user-page">
+
+        <h3>Admin Panel</h3>
+
+        @if (State.Role != "Admin" || !State.IsAdminAuthenticated)
+        {
+            <p class="text-danger">Access Denied. Admin authentication required.</p>
+
+            <button class="btn btn-secondary mt-3" @onclick="GoBack">
+                Go to Login
+            </button>
+        }
+        else
+        {
+            <h4 class="mt-3">User Logs</h4>
+
+            @if (State.Logs == null || State.Logs.Count == 0)
+            {
+                <p>No logs available</p>
+            }
+            else
+            {
+                <div class="table-wrapper">
+                    <table class="planet-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Username</th>
+                                <th>Month</th>
+                                <th>Year</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                int i = 1;
+                            }
+                            @foreach (var log in State.Logs)
+                            {
+                                var parts = log.Split('-');
+                                <tr>
+                                    <td>@i</td>
+                                    <td>@parts[0]</td>
+                                    <td>@parts[1]</td>
+                                    <td>@parts[2]</td>
+                                </tr>
+                                i++;
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+
+            <div class="d-flex gap-3 mt-4">
+                <button class="btn btn-primary px-4" @onclick="ClearLogs">
+                    Clear Logs
+                </button>
+
+                <button class="btn btn-danger px-4" @onclick="Logout">
+                    Logout
+                </button>
+            </div>
+        }
+
+    </div>
+</div>
+
+@code {
+    void ClearLogs()
+    {
+        State.Logs.Clear();
+    }
+
+    void Logout()
+    {
+        State.IsAdminAuthenticated = false;
+        Nav.NavigateTo("/");
+    }
+
+    void GoBack()
+    {
+        Nav.NavigateTo("/");
+    }
+}

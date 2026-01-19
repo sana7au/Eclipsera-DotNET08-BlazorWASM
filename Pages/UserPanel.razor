@@ -1,0 +1,153 @@
+﻿@page "/user"
+@inject PlanetService PlanetService
+@inject AppState State
+@inject NavigationManager Nav
+
+<div class="page-overlay">
+    <div class="user-page">
+
+        <h3>User Panel</h3>
+        <p>Welcome, @State.Username</p>
+
+        <div class="user-layout">
+
+            <!-- LEFT PANEL -->
+            <div class="left-panel">
+
+                <label>Month</label>
+                <input class="form-control"
+                       type="number"
+                       min="1"
+                       max="12"
+                       placeholder="1 - 12"
+                       @bind="State.SavedMonth" />
+
+                <br />
+
+                <label>Year</label>
+                <input class="form-control"
+                       type="number"
+                       placeholder="e.g. 2025"
+                       @bind="State.SavedYear" />
+
+                <br />
+
+                <button class="btn btn-primary w-100" @onclick="Calculate">
+                    Calculate
+                </button>
+
+                <br /><br />
+
+                <button class="btn @(HasCalculated ? "btn-primary" : "btn-secondary") w-100"
+                        disabled="@(!HasCalculated)"
+                        @onclick="GoToTable">
+                    View Pictorial Portrayal
+                </button>
+
+                <br /><br />
+
+                <button class="btn @(HasCalculated ? "btn-primary" : "btn-secondary") w-100"
+                        disabled="@(!HasCalculated)"
+                        @onclick="GoToAnimated">
+                    Live Simulation
+                </button>
+
+                <br /><br />
+
+                <!-- ✅ LOGOUT BUTTON -->
+                <button class="btn btn-danger w-100" @onclick="Logout">
+                    Logout
+                </button>
+
+                @if (!string.IsNullOrEmpty(error))
+                {
+                    <p class="text-danger mt-3">@error</p>
+                }
+            </div>
+
+            <!-- RIGHT PANEL -->
+            <div class="right-panel">
+                @if (HasCalculated)
+                {
+                    <div class="table-wrapper-user">
+                        <table class="planet-table">
+                            <thead>
+                                <tr>
+                                    <th>Planet</th>
+                                    <th>Distance (AU)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var p in State.PlanetResults)
+                                {
+                                    <tr>
+                                        <td>@p.Planet</td>
+                                        <td>@p.Distance</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@code {
+
+    string error = "";
+
+    bool HasCalculated =>
+        State.PlanetResults != null &&
+        State.PlanetResults.Count > 0;
+
+    void Calculate()
+    {
+        error = "";
+
+        if (State.SavedMonth is null || State.SavedYear is null)
+        {
+            error = "Please enter both month and year.";
+            return;
+        }
+
+        // ✅ Month range validation (1–12 only)
+        if (State.SavedMonth < 1 || State.SavedMonth > 12)
+        {
+            error = "Month must be between 1 and 12.";
+            return;
+        }
+
+        State.PlanetResults =
+            PlanetService
+                .Calculate(State.SavedMonth.Value, State.SavedYear.Value)
+                .Select(p => (Planet: p.Item1, Distance: p.Item2))
+                .ToList();
+
+        State.Logs.Add(
+        $"{State.Username}-{State.SavedMonth}-{State.SavedYear}"
+        );
+    }
+
+    void GoToTable()
+        => Nav.NavigateTo("/visualization", false);
+
+    void GoToAnimated()
+        => Nav.NavigateTo("/visualization-animated", false);
+
+    /* ✅ SAFE LOGOUT (NO DATA LOSS) */
+    void Logout()
+    {
+        // ❗ DO NOT delete logs or history
+        // ❗ DO NOT touch PlanetService data
+
+        State.Username = null;          // end session
+        State.SavedMonth = null;        // clear inputs
+        State.SavedYear = null;
+        State.PlanetResults = null;     // clear UI only
+
+        Nav.NavigateTo("/");
+    }
+}
